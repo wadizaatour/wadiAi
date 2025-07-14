@@ -1,35 +1,45 @@
 import { defineEventHandler, readBody } from "h3";
 
-// This uses the free OpenAI API endpoint for demonstration. Replace with your own key for production.
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || ""; // You can set your own key in .env
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+// This uses the OpenRouter API endpoint and your provided key.
+const OPENROUTER_API_KEY =
+  "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";
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { messages } = body;
 
-  if (!OPENAI_API_KEY) {
-    return { error: "No OpenAI API key provided." };
+  if (!OPENROUTER_API_KEY) {
+    return { error: "No OpenRouter API key provided." };
   }
 
-  const response = await fetch(OPENAI_API_URL, {
+  const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
+      Authorization: `Bearer ${OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      // Optionally add your site info for OpenRouter rankings:
+      // 'HTTP-Referer': 'https://your-site-url.com',
+      // 'X-Title': 'Your Site Name',
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "openai/gpt-4o",
       messages,
-      temperature: 0.7,
-      max_tokens: 512,
     }),
   });
 
-  if (!response.ok) {
-    return { error: "Failed to fetch from OpenAI." };
+  let data;
+  try {
+    data = await response.json();
+  } catch (e) {
+    data = null;
   }
 
-  const data = await response.json();
+  if (!response.ok) {
+    // Log error details for debugging
+    console.error("OpenRouter API error:", data || (await response.text()));
+    return { error: data?.error || "Failed to fetch from OpenRouter." };
+  }
+
   return data;
 });

@@ -9,70 +9,80 @@
       >
     </p>
     <div
-      class="border border-gray-300 rounded p-4 bg-white dark:bg-gray-800 min-h-[300px] flex flex-col space-y-2"
+      class="border border-gray-300 rounded bg-white dark:bg-gray-800 flex flex-col-reverse flex-1 min-h-0 max-h-[70vh] overflow-y-auto p-4 relative"
+      style="height: 60vh"
     >
-      <div
-        v-for="(msg, i) in messages"
-        :key="i"
-        :class="
-          msg.role === 'user'
-            ? 'flex-row-reverse text-right'
-            : 'flex-row text-left'
-        "
-        class="relative flex items-end"
-      >
-        <div
-          v-if="msg.role === 'assistant'"
-          class="w-12 h-12 mr-2 order-0 flex items-center"
-        >
-          <div
-            :ref="(el) => setLottieRef(el, i)"
-            :id="`wadi-lottie-${i}`"
-            class="w-12 h-12"
-          ></div>
-        </div>
+      <template v-for="(msg, i) in [...messages].reverse()" :key="i">
         <div
           :class="
             msg.role === 'user'
-              ? 'inline-block bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 px-3 py-2 rounded-lg my-1'
-              : 'inline-block bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 rounded-lg my-1 fade-in-up'
+              ? 'flex-row-reverse text-right'
+              : 'flex-row text-left'
           "
-          :style="
-            msg.role === 'assistant' ? 'margin-left: 48px;' : 'margin-right: 0;'
-          "
+          class="relative flex items-end mb-2"
         >
-          <span v-if="msg.role === 'user'">You: </span>
-          <span v-else><b>Wadi:&nbsp;</b></span>
-          <span
-            v-if="
-              msg.role === 'assistant' && i === messages.length - 1 && loading
-            "
-            >{{ animatedContent }}</span
+          <div
+            v-if="msg.role === 'assistant'"
+            class="w-20 h-20 mr-1 order-0 flex items-center"
           >
-          <span v-else>{{ msg.content }}</span>
-          <!-- Schedule a Call button if fallback response -->
-          <template
-            v-if="
-              msg.role === 'assistant' &&
-              (msg.content ===
-                'When we schedule a call we can talk about this.' ||
-                msg.content ===
-                  'We can talk about it in a private conversation.') &&
-              i === messages.length - 1
+            <div
+              :ref="(el) => setLottieRef(el, messages.length - 1 - i)"
+              :id="`wadi-lottie-${messages.length - 1 - i}`"
+              class="w-20 h-20"
+            ></div>
+          </div>
+          <div
+            :class="
+              msg.role === 'user'
+                ? 'inline-block bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 px-3 py-2 rounded-lg my-1'
+                : 'inline-block bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 rounded-lg my-1 fade-in-up'
+            "
+            :style="
+              msg.role === 'assistant'
+                ? 'margin-left: 76px;'
+                : 'margin-right: 0;'
             "
           >
-            <div class="mt-2">
-              <button
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
-                @click="onScheduleCall"
-              >
-                📅 Schedule a Call
-              </button>
-            </div>
-          </template>
+            <span v-if="msg.role === 'user'">You: </span>
+            <span v-else><b>Wadi:&nbsp;</b></span>
+            <span
+              v-if="
+                msg.role === 'assistant' &&
+                messages.length - 1 - i === messages.length - 1 &&
+                loading
+              "
+              >{{ animatedContent }}</span
+            >
+            <span v-else>{{ msg.content }}</span>
+            <!-- Schedule a Call button if fallback response -->
+            <template
+              v-if="
+                msg.role === 'assistant' &&
+                (msg.content ===
+                  'When we schedule a call we can talk about this.' ||
+                  msg.content ===
+                    'We can talk about it in a private conversation.') &&
+                messages.length - 1 - i === messages.length - 1
+              "
+            >
+              <div class="mt-2">
+                <button
+                  class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
+                  @click="onScheduleCall"
+                >
+                  📅 Schedule a Call
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
+      </template>
+      <div
+        v-if="loading"
+        class="text-gray-400 italic absolute right-0 bottom-2 pr-5 pt-4 pointer-events-none"
+      >
+        Wadi is typing...
       </div>
-      <div v-if="loading" class="text-gray-400 italic">Wadi is typing...</div>
     </div>
     <div class="flex flex-wrap gap-2 mb-4 items-center">
       <button
@@ -95,7 +105,10 @@
         <span v-else>🔇 Voice Off</span>
       </button>
     </div>
-    <form @submit.prevent="sendMessage" class="flex gap-2 mt-2">
+    <form
+      @submit.prevent="sendMessage"
+      class="flex gap-2 mt-2 sticky bottom-0 bg-white dark:bg-gray-800 p-2 z-10 border-t border-gray-200 dark:border-gray-700"
+    >
       <input
         v-model="input"
         type="text"
@@ -139,15 +152,17 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, watch, nextTick } from "vue";
+
 import lottie from "lottie-web";
 import { useRouter } from "vue-router";
+import { useRuntimeConfig } from "nuxt/app";
 const input = ref("");
 const loading = ref(false);
 const puterReady = ref(false);
 const messages = ref([
   {
     role: "system",
-    content: `You are a helpful AI assistant that represents the user (a Senior Frontend Engineer named Wadi zaatour). You do mock interviews with recruiters and answer their questions as if you were Wadi. Be professional, concise, and friendly.`,
+    content: `You are a helpful AI assistant . Be professional, concise, and friendly and write 2 sentences answer.`,
   },
 ]);
 // Lottie animation JSON (funny avatar with blinking and waving)
@@ -429,21 +444,89 @@ const sendMessage = async () => {
   loading.value = true;
   try {
     const userText = input.value;
-    let content = getAIResponse(userText);
-    if (
-      content ===
-      "I'm happy to answer any questions about my experience, skills, or background!"
-    ) {
-      content = "When we schedule a call we can talk about this.";
+    // Nonsense/weird detection
+    const nonsensePatterns = [
+      /^(?:[a-zA-Z]{1,2}\s*){5,}$/i,
+      /^(?:[0-9\W_]+)$/i,
+      /^\s*$/,
+      /^(?:[a-zA-Z0-9]{1,3}\s*){8,}$/i,
+      /^(?:[a-zA-Z]+\s*){1,2}$/i,
+      /lorem|asdf|qwer|zxcv|test|random|gibberish|blah|foo|bar|baz/i,
+    ];
+    const isNonsense = nonsensePatterns.some((pat) =>
+      pat.test(userText.trim())
+    );
+    // Recruiter question detection
+    const isRecruiterQ = recruiterQuestions.some((pat) => pat.test(userText));
+    // If nonsense or recruiter question, use local response
+    if (isNonsense || isRecruiterQ) {
+      let content = getAIResponse(userText);
+      if (
+        content ===
+        "I'm happy to answer any questions about my experience, skills, or background!"
+      ) {
+        content = "When we schedule a call we can talk about this.";
+      }
+      await typeTextEffect(content);
+      messages.value.push({
+        role: "assistant",
+        content: animatedContent.value,
+      });
+      speak(animatedContent.value);
+      animatedContent.value = "";
+      if (suggestionStep.value < orderedSuggestions.length - 1) {
+        suggestionStep.value++;
+      }
+      saveConversation();
+    } else {
+      // Use OpenRouter API for other questions (direct integration)
+      // Use Nuxt runtime config for the API key
+      // Make sure to define NUXT_PUBLIC_OPENROUTER_API_KEY in your .env file
+      console.log(useRuntimeConfig().public.openrouterApiKey);
+      const OPENROUTER_API_KEY = useRuntimeConfig().public.openrouterApiKey;
+      const OPENROUTER_API_URL =
+        "https://openrouter.ai/api/v1/chat/completions";
+      const systemPrompt = messages.value.find((m) => m.role === "system");
+      const chatMessages = [
+        ...(systemPrompt ? [systemPrompt] : []),
+        ...messages.value.filter((m) => m.role !== "system"),
+      ];
+      let content = "";
+      try {
+        const res = await fetch(OPENROUTER_API_URL, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            // Optionally add your site info for OpenRouter rankings:
+            // 'HTTP-Referer': 'https://your-site-url.com',
+            // 'X-Title': 'Your Site Name',
+          },
+          body: JSON.stringify({
+            model: "deepseek/deepseek-r1-0528:free",
+            messages: chatMessages,
+          }),
+        });
+        const data = await res.json();
+        content =
+          data.choices?.[0]?.message?.content?.trim() ||
+          data.error ||
+          "Sorry, I couldn't generate a response.";
+      } catch (e) {
+        content = "Sorry, there was a problem generating a response.";
+      }
+      await typeTextEffect(content);
+      messages.value.push({
+        role: "assistant",
+        content: animatedContent.value,
+      });
+      speak(animatedContent.value);
+      animatedContent.value = "";
+      if (suggestionStep.value < orderedSuggestions.length - 1) {
+        suggestionStep.value++;
+      }
+      saveConversation();
     }
-    await typeTextEffect(content);
-    messages.value.push({ role: "assistant", content: animatedContent.value });
-    speak(animatedContent.value); // Speak the answer
-    animatedContent.value = "";
-    if (suggestionStep.value < orderedSuggestions.length - 1) {
-      suggestionStep.value++;
-    }
-    saveConversation(); // <-- Save after assistant response
   } catch (error) {
     console.error("Error:", error);
     loading.value = false;

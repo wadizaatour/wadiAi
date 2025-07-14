@@ -97,6 +97,7 @@
         <NuxtLink
           to="/"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -118,6 +119,7 @@
         <NuxtLink
           to="/weather"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -139,6 +141,7 @@
         <NuxtLink
           to="/blogs"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -160,6 +163,7 @@
         <NuxtLink
           to="/contact"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -186,6 +190,7 @@
         <NuxtLink
           to="/ask-ai"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -206,7 +211,8 @@
         </NuxtLink>
         <NuxtLink
           to="/dashboard"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2 relative"
+          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
           @click="closeSidebar"
         >
           <svg
@@ -223,7 +229,16 @@
               d="M4 6h16M4 10h16M4 14h16M4 18h16"
             />
           </svg>
-          <span>Dashboard</span>
+          <span class="flex items-center w-full">
+            <span>Dashboard</span>
+            <span
+              v-if="conversationCount > 0"
+              class="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full min-w-[1.5em]"
+              style="margin-left: auto"
+            >
+              {{ conversationCount }}
+            </span>
+          </span>
         </NuxtLink>
       </nav>
     </aside>
@@ -238,7 +253,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { useConversationStore } from "../stores/conversationStore";
 const sidebarOpen = ref(false);
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value;
@@ -246,6 +262,15 @@ function toggleSidebar() {
 function closeSidebar() {
   sidebarOpen.value = false;
 }
+
+// Conversation notification badge logic
+const conversationStore = useConversationStore();
+const conversationCount = computed(
+  () => conversationStore.conversations.length
+);
+onMounted(() => {
+  conversationStore.loadConversations();
+});
 </script>
 
 <style scoped>
