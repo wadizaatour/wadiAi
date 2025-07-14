@@ -116,28 +116,97 @@
           </svg>
           <span>Home</span>
         </NuxtLink>
-        <NuxtLink
-          to="/weather"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
-          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
-          @click="closeSidebar"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-indigo-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
+
+        <!-- Project expandable menu -->
+        <div>
+          <button
+            @click="projectMenuOpen = !projectMenuOpen"
+            class="flex items-center w-full py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2 focus:outline-none"
+            :aria-expanded="projectMenuOpen.toString()"
+            aria-label="Toggle Project menu"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M3 15a4 4 0 014-4h1a4 4 0 014 4v1a4 4 0 01-4 4H7a4 4 0 01-4-4v-1z"
-            />
-          </svg>
-          <span>Weather App</span>
-        </NuxtLink>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 text-indigo-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6v12m6-6H6"
+              />
+            </svg>
+            <span>Project</span>
+            <svg
+              :class="[
+                'ml-auto transition-transform',
+                projectMenuOpen ? 'rotate-90' : '',
+              ]"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+          <div v-if="projectMenuOpen" class="pl-6 space-y-2 mt-2">
+            <NuxtLink
+              to="/weather"
+              class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+              active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-indigo-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 15a4 4 0 014-4h1a4 4 0 014 4v1a4 4 0 01-4 4H7a4 4 0 01-4-4v-1z"
+                />
+              </svg>
+              <span>Weather App</span>
+            </NuxtLink>
+            <NuxtLink
+              to="/ask-ai"
+              class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
+              active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-indigo-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16h6"
+                />
+              </svg>
+              <span>Ask AI</span>
+            </NuxtLink>
+          </div>
+        </div>
+
         <NuxtLink
           to="/blogs"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
@@ -188,28 +257,6 @@
           <span>Contact</span>
         </NuxtLink>
         <NuxtLink
-          to="/ask-ai"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
-          active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
-          @click="closeSidebar"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5 text-indigo-600"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8 10h.01M12 10h.01M16 10h.01M9 16h6"
-            />
-          </svg>
-          <span>Ask AI</span>
-        </NuxtLink>
-        <NuxtLink
           to="/dashboard"
           class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2 relative"
           active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
@@ -256,6 +303,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useConversationStore } from "../stores/conversationStore";
 const sidebarOpen = ref(false);
+const projectMenuOpen = ref(false);
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value;
 }

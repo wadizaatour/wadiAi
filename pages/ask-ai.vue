@@ -156,6 +156,7 @@ import { ref, onMounted, watch, nextTick } from "vue";
 import lottie from "lottie-web";
 import { useRouter } from "vue-router";
 import { useRuntimeConfig } from "nuxt/app";
+const config = useRuntimeConfig();
 const input = ref("");
 const loading = ref(false);
 const puterReady = ref(false);
@@ -467,6 +468,9 @@ const sendMessage = async () => {
       ) {
         content = "When we schedule a call we can talk about this.";
       }
+      if (typeof content !== "string" || !content.trim()) {
+        content = "Sorry, I couldn't generate a response.";
+      }
       await typeTextEffect(content);
       messages.value.push({
         role: "assistant",
@@ -482,10 +486,10 @@ const sendMessage = async () => {
       // Use OpenRouter API for other questions (direct integration)
       // Use Nuxt runtime config for the API key
       // Make sure to define NUXT_PUBLIC_OPENROUTER_API_KEY in your .env file
-      console.log(useRuntimeConfig().public.openrouterApiKey);
-      const OPENROUTER_API_KEY = useRuntimeConfig().public.openrouterApiKey;
+      const OPENROUTER_API_KEY = config.public.openrouterApiKey;
       const OPENROUTER_API_URL =
         "https://openrouter.ai/api/v1/chat/completions";
+      console.log("OpenRouter API Key:", config.public.openrouterApiKey);
       const systemPrompt = messages.value.find((m) => m.role === "system");
       const chatMessages = [
         ...(systemPrompt ? [systemPrompt] : []),
@@ -493,27 +497,40 @@ const sendMessage = async () => {
       ];
       let content = "";
       try {
+        // Add fetch timeout (15s)
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
         const res = await fetch(OPENROUTER_API_URL, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${OPENROUTER_API_KEY}`,
             "Content-Type": "application/json",
-            // Optionally add your site info for OpenRouter rankings:
-            // 'HTTP-Referer': 'https://your-site-url.com',
-            // 'X-Title': 'Your Site Name',
           },
           body: JSON.stringify({
             model: "deepseek/deepseek-r1-0528:free",
             messages: chatMessages,
           }),
+          signal: controller.signal,
         });
-        const data = await res.json();
-        content =
-          data.choices?.[0]?.message?.content?.trim() ||
-          data.error ||
-          "Sorry, I couldn't generate a response.";
+        clearTimeout(timeout);
+        if (!res.ok) {
+          content = `Sorry, OpenRouter error: ${res.status} ${res.statusText}`;
+        } else {
+          const data = await res.json();
+          content =
+            data.choices?.[0]?.message?.content?.trim() ||
+            data.error ||
+            "Sorry, I couldn't generate a response.";
+        }
       } catch (e) {
-        content = "Sorry, there was a problem generating a response.";
+        if (e.name === "AbortError") {
+          content = "Sorry, the request timed out. Please try again.";
+        } else {
+          content = "Sorry, there was a problem generating a response.";
+        }
+      }
+      if (typeof content !== "string" || !content.trim()) {
+        content = "Sorry, I couldn't generate a response.";
       }
       await typeTextEffect(content);
       messages.value.push({
@@ -529,9 +546,9 @@ const sendMessage = async () => {
     }
   } catch (error) {
     console.error("Error:", error);
+  } finally {
     loading.value = false;
   }
-  loading.value = false;
 };
 </script>
 
