@@ -50,6 +50,26 @@
             >{{ animatedContent }}</span
           >
           <span v-else>{{ msg.content }}</span>
+          <!-- Schedule a Call button if fallback response -->
+          <template
+            v-if="
+              msg.role === 'assistant' &&
+              (msg.content ===
+                'When we schedule a call we can talk about this.' ||
+                msg.content ===
+                  'We can talk about it in a private conversation.') &&
+              i === messages.length - 1
+            "
+          >
+            <div class="mt-2">
+              <button
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition text-sm"
+                @click="onScheduleCall"
+              >
+                📅 Schedule a Call
+              </button>
+            </div>
+          </template>
         </div>
       </div>
       <div v-if="loading" class="text-gray-400 italic">Wadi is typing...</div>
@@ -98,6 +118,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, watch, nextTick } from "vue";
 import lottie from "lottie-web";
+import { useRouter } from "vue-router";
 const input = ref("");
 const loading = ref(false);
 const puterReady = ref(false);
@@ -186,6 +207,22 @@ const recruiterQuestions = [
 ];
 
 function getAIResponse(userText: string): string {
+  // Detect nonsensical or random input
+  const nonsensePatterns = [
+    /^(?:[a-zA-Z]{1,2}\s*){5,}$/i, // many single/double letters
+    /^(?:[0-9\W_]+)$/i, // only symbols or numbers
+    /^\s*$/, // empty or whitespace
+    /^(?:[a-zA-Z0-9]{1,3}\s*){8,}$/i, // many short tokens
+    /^(?:[a-zA-Z]+\s*){1,2}$/i, // just one or two words (not a question)
+    /lorem|asdf|qwer|zxcv|test|random|gibberish|blah|foo|bar|baz/i,
+  ];
+  if (nonsensePatterns.some((pat) => pat.test(userText.trim()))) {
+    return "I'm not sure I understand your question. Could you please rephrase or ask a more specific question?";
+  }
+  // If not a question or too short
+  if (!/[\?]/.test(userText) && userText.trim().split(/\s+/).length < 3) {
+    return "Could you please ask a more detailed question?";
+  }
   if (
     recruiterQuestions[0].test(userText) ||
     /salary|compensation|pay|expect/i.test(userText)
@@ -310,6 +347,11 @@ function speak(text: string) {
     synth.cancel(); // Stop any previous speech
     synth.speak(utter);
   }
+}
+
+const router = useRouter();
+function onScheduleCall() {
+  router.push("/contact");
 }
 
 const sendMessage = async () => {
