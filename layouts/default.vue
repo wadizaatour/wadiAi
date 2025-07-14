@@ -96,7 +96,7 @@
       <nav class="flex-1 px-4 py-6 space-y-4">
         <NuxtLink
           to="/"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
@@ -117,7 +117,7 @@
         </NuxtLink>
         <NuxtLink
           to="/weather"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
@@ -138,7 +138,7 @@
         </NuxtLink>
         <NuxtLink
           to="/blogs"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
@@ -159,7 +159,7 @@
         </NuxtLink>
         <NuxtLink
           to="/contact"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
@@ -185,7 +185,7 @@
         </NuxtLink>
         <NuxtLink
           to="/ask-ai"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
@@ -206,7 +206,7 @@
         </NuxtLink>
         <NuxtLink
           to="/dashboard"
-          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 transition space-x-2"
+          class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
           @click="closeSidebar"
         >
           <svg
