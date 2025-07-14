@@ -32,7 +32,7 @@
           Get in touch
         </a>
       </div>
-      <p class="mt-6 text-gray-700 dark:text-gray-300">Mumbai, India</p>
+      <p class="mt-6 text-gray-700 dark:text-gray-300">Utrecht, Netherlands</p>
       <p class="text-gray-700 dark:text-gray-300">9762386724</p>
       <p class="text-gray-700 dark:text-gray-300">
         abhishekdesai1239@gmail.com
@@ -441,7 +441,10 @@
         >
           <p><strong>Phone</strong><br />9762386724</p>
           <p><strong>Email</strong><br />abhishekdesai1239@gmail.com</p>
-          <p><strong>Location</strong><br />Mumbai, India</p>
+          <p>
+            <strong>Location</strong><br />
+            Utrecht, Netherlands
+          </p>
         </div>
       </div>
       <form class="flex-1 space-y-4" @submit.prevent="submitForm">
