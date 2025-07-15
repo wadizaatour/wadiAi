@@ -50,15 +50,15 @@
         type="text"
         class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 dark:text-gray-100"
         placeholder="Ask a question or start a mock interview..."
-        :disabled="loading || !puterReady"
+        :disabled="loading"
       />
       <button
         type="submit"
         class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-        :disabled="loading || !input.trim() || !puterReady"
+        :disabled="loading || !input.trim() "
       >
-        <span v-if="!puterReady">Loading...</span>
-        <span v-else>Send</span>
+        
+        <span >Send</span>
       </button>
     </form>
     <button

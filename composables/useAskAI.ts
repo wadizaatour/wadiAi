@@ -1,6 +1,7 @@
 import { ref, watch, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useRuntimeConfig } from "nuxt/app";
+import { useStaticAnswers } from "./useStaticAnswers";
 
 export interface Message {
   role: "user" | "assistant" | "system";
@@ -44,11 +45,30 @@ export function useAskAI() {
   ];
 
   function getCurrentSuggestions() {
-    if (suggestionStep.value === 0) return [orderedSuggestions[0]];
-    return orderedSuggestions.slice(
-      suggestionStep.value,
-      suggestionStep.value + 2
+    // Collect all user questions already asked
+    const asked = new Set(
+      messages.value
+        .filter((m) => m.role === "user")
+        .map((m) => m.content.trim())
     );
+
+    // Always include 'Tell me about yourself.' if not already asked
+    const suggestions: string[] = [];
+    if (!asked.has(orderedSuggestions[0])) {
+      suggestions.push(orderedSuggestions[0]);
+    }
+
+    // Add the next available suggestion(s) that haven't been asked
+    for (
+      let i = 1;
+      i < orderedSuggestions.length && suggestions.length < 2;
+      i++
+    ) {
+      if (!asked.has(orderedSuggestions[i])) {
+        suggestions.push(orderedSuggestions[i]);
+      }
+    }
+    return suggestions;
   }
 
   function speak(text: string) {
@@ -126,99 +146,15 @@ export function useAskAI() {
     }
   }
 
-  // Recruiter question patterns
-  const recruiterQuestions = [
-    /salary|compensation|pay|expect/i,
-    /what.*salary/i,
-    /tell.*about.*yourself/i,
-    /who.*are.*you/i,
-    /describe.*yourself/i,
-    /experience|background/i,
-    /skills|technologies|stack/i,
-    /why.*cowmanager|why.*company/i,
-    /strength|weakness/i,
-    /hobby|free time|outside work/i,
-    /why.*leave|left.*job/i,
-    /where.*see.*yourself/i,
-    /relocate|remote|onsite/i,
-    /team|collaborate|work with/i,
-    /challenge|problem/i,
-    /project|proud/i,
-    /education|degree|school/i,
-    /questions.*for.*us/i,
-  ];
+  // Use static answers composable
+  const { recruiterQuestions, getStaticAnswer } = useStaticAnswers();
 
   function getAIResponse(userText: string): string {
-    // Detect nonsensical or random input
-    const nonsensePatterns = [
-      /^(?:[a-zA-Z]{1,2}\s*){5,}$/i, // many single/double letters
-      /^(?:[0-9\W_]+)$/i, // only symbols or numbers
-      /^\s*$/, // empty or whitespace
-      /^(?:[a-zA-Z0-9]{1,3}\s*){8,}$/i, // many short tokens
-      /^(?:[a-zA-Z]+\s*){1,2}$/i, // just one or two words (not a question)
-      /lorem|asdf|qwer|zxcv|test|random|gibberish|blah|foo|bar|baz/i,
-    ];
-    const unclearResponses = [
-      "I'm not sure I understand your question. Could you please rephrase or ask a more specific question?",
-      "Sorry, I didn't quite get that. Can you clarify or provide more details?",
-      "That doesn't seem like a question I can answer. Could you try rewording it?",
-      "I couldn't understand your request. Please ask a clear or relevant question.",
-      "Can you please provide more context or ask your question differently?",
-    ];
-    if (nonsensePatterns.some((pat) => pat.test(userText.trim()))) {
-      return unclearResponses[
-        Math.floor(Math.random() * unclearResponses.length)
-      ];
-    }
-    // If not a question or too short
-    if (!/[\?]/.test(userText) && userText.trim().split(/\s+/).length < 3) {
-      return unclearResponses[
-        Math.floor(Math.random() * unclearResponses.length)
-      ];
-    }
-    if (
-      recruiterQuestions[0].test(userText) ||
-      /salary|compensation|pay|expect/i.test(userText)
-    ) {
-      return "We can talk about it in a private conversation.";
-    }
-    if (
-      /tell.*about.*yourself|who.*are.*you|describe.*yourself/i.test(userText)
-    ) {
-      return "I'm Wadi, a Senior Frontend Engineer with extensive experience in React, Vue, and Typescript. I've delivered world-class user experiences to millions and thrive on building modern, responsive, and secure web applications.";
-    }
-    if (/experience|background/i.test(userText)) {
-      return "I have worked as a Senior Frontend Engineer at CowManager since 2019, and previously as a FullStack Engineer at FactorBlue, Esprit, and Sofrecom, contributing to both frontend and backend projects.";
-    }
-    if (/skills|technologies|stack/i.test(userText)) {
-      return "My main skills are React, Vue, Typescript, Javascript, HTML5, CSS, and Python. I'm also experienced with Node.js, Figma, AdobeXD, and Azure DevOps.";
-    }
-    if (/why.*cowmanager|why.*company/i.test(userText)) {
-      return "I'm passionate about building impactful products and CowManager's mission aligns with my values. I enjoy working on innovative solutions in a collaborative environment.";
-    }
-    if (/strength/i.test(userText)) {
-      return "My strengths are attention to detail, clear communication, and staying up-to-date with the latest frontend trends.";
-    }
-    if (/weakness/i.test(userText)) {
-      return "I sometimes get too focused on perfecting UI details, but I've learned to balance quality with delivery timelines.";
-    }
-    if (/hobby|free time|outside work/i.test(userText)) {
-      return "I enjoy blogging, learning new technologies, and contributing to open source. Outside work, I like to travel and explore new cultures.";
-    }
-    if (/why.*new.*mission|why.*find.*new.*mission/i.test(userText)) {
-      return "I'm looking for a new mission to grow, take on new challenges, and contribute to impactful projects with a great team.";
-    }
-    if (/where.*live/i.test(userText)) {
-      return "I currently live in the EU.";
-    }
-    if (/how.*many.*languages|languages.*you.*speak/i.test(userText)) {
-      return "I speak English, French, and Arabic.";
-    }
-    if (/sponsor|visa|work permit|require.*visa/i.test(userText)) {
-      return "No, I do not require sponsorship or a visa as I am an EU citizen.";
-    }
-    // Default fallback
-    return "I'm happy to answer any questions about my experience, skills, or background!";
+    // Use static/local answer logic, fallback to default if null
+    return (
+      getStaticAnswer(userText) ??
+      "I'm happy to answer any questions about my experience, skills, or background!"
+    );
   }
 
   // Main sendMessage logic
@@ -241,10 +177,10 @@ export function useAskAI() {
       const isNonsense = nonsensePatterns.some((pat) =>
         pat.test(userText.trim())
       );
-      // Recruiter question detection
+      // Recruiter question detection and static answer logic
       const isRecruiterQ = recruiterQuestions.some((pat) => pat.test(userText));
-      // If nonsense or recruiter question, use local response
-      if (isNonsense || isRecruiterQ) {
+      const staticAnswer = getStaticAnswer(userText);
+      if (isNonsense || isRecruiterQ || staticAnswer) {
         let content = getAIResponse(userText);
         if (
           content ===
@@ -295,7 +231,12 @@ export function useAskAI() {
           });
           clearTimeout(timeout);
           if (!res.ok) {
-            content = `Sorry, OpenRouter error: ${res.status} ${res.statusText}`;
+            if (res.status === 401) {
+              // Use static fallback logic for 401 Unauthorized
+              content = "When we schedule a call we can talk about this.";
+            } else {
+              content = `Sorry, OpenRouter error: ${res.status} ${res.statusText}`;
+            }
           } else {
             const data = await res.json();
             content =
