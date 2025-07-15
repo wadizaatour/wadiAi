@@ -10,6 +10,11 @@ export default defineNuxtConfig({
     plugins: [tailwindcss()],
   },
   plugins: ["~/plugins/pinia.js"], // Register the Pinia plugin
+  app: {
+    head: {
+      script: [{ src: "/pacman.js", defer: true }],
+    },
+  },
   runtimeConfig: {
     public: {
       openrouterApiKey: process.env.NUXT_PUBLIC_OPENROUTER_API_KEY,

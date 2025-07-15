@@ -183,6 +183,55 @@
               <span>Weather App</span>
             </NuxtLink>
             <NuxtLink
+              to="/tetris"
+              class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-purple-700 dark:hover:text-purple-400 transition space-x-2"
+              active-class="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-purple-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <rect
+                  x="3"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="14"
+                  y="3"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="3"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  fill="currentColor"
+                />
+                <rect
+                  x="14"
+                  y="14"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  fill="currentColor"
+                />
+              </svg>
+              <span>Tetris Game</span>
+            </NuxtLink>
+            <NuxtLink
               to="/ask-ai"
               class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-indigo-700 dark:hover:text-indigo-400 transition space-x-2"
               active-class="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold"
@@ -203,6 +252,51 @@
                 />
               </svg>
               <span>Ask AI</span>
+            </NuxtLink>
+            <NuxtLink
+              to="/snake"
+              class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-green-700 dark:hover:text-green-400 transition space-x-2"
+              active-class="bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 font-bold"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 12c0-4 8-4 8 0s8 4 8 0"
+                />
+                <circle cx="12" cy="12" r="2" fill="currentColor" />
+              </svg>
+              <span>Snake Game</span>
+            </NuxtLink>
+            <NuxtLink
+              v-if="!isMobile"
+              to="/pacman"
+              class="flex items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-yellow-500 dark:hover:text-yellow-400 transition space-x-2"
+              active-class="bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 font-bold"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-yellow-500"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" fill="currentColor" />
+                <path
+                  d="M22 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12a10 10 0 0 1 10-10c2.21 0 4.25.72 5.9 1.93L12 12l7.9-7.9A9.96 9.96 0 0 1 22 12z"
+                  fill="#111"
+                />
+                <circle cx="15.5" cy="9" r="1.5" fill="#fff" />
+              </svg>
+              <span>Pac-Man</span>
             </NuxtLink>
           </div>
         </div>
@@ -302,6 +396,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useConversationStore } from "../stores/conversationStore";
+import { useMobileDetection } from "../composables/useMobileDetection";
 const sidebarOpen = ref(false);
 const projectMenuOpen = ref(false);
 function toggleSidebar() {
@@ -319,6 +414,9 @@ const conversationCount = computed(
 onMounted(() => {
   conversationStore.loadConversations();
 });
+
+// Mobile detection
+const { isMobile } = useMobileDetection();
 </script>
 
 <style scoped>
